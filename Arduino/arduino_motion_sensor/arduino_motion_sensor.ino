@@ -1,7 +1,3 @@
-#include <Wire.h>
-#include <Arduino.h>
-#include <SoftwareSerial.h>
-
 const int LED_PIN = 13;
 const int PIR_PIN = 8;
 
