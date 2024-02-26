@@ -1,39 +1,74 @@
 import os
-import subprocess
 from datetime import datetime as dt
+from subprocess import Popen
+from time import sleep
 
-from serial import Serial
+from serial import Serial, SerialException
+
+# from picamera import PiCamera
 
 SERIAL_PORT: str = '/dev/ttyUSB0'
 BAUD_RATE: int = 9600
 USB_DRIVE_PATH: str = '/media/pi/USB_DRIVE'
+MOTION_DETECTED_MSG: str = 'Motion detected!'
+MOTION_ENDED_MSG: str = 'Motion ended!'
 
 
-def setup_serial(port: str, baud_rate: int) -> Serial:
-    """Set up serial communication with Arduino."""
-    return Serial(port, baud_rate)
+def setup_serial(port: str, baud_rate: int) -> Serial or None:
+    try:
+        return Serial(port, baud_rate)
+    except SerialException as e:
+        print(f"Error opening serial port {port}: {e}")
+        return None
 
 
 def record_video(output_path: str) -> None:
-    """Record video using Raspberry Pi camera for 10 seconds."""
-    timestamp = dt.now().strftime('%Y-%m-%d_%H-%M-%S')
-    video_file = os.path.join(output_path, f'motion_{timestamp}.h264')
-    subprocess.run(['raspivid', '-o', video_file, '-t', '10000'])
+    try:
+        timestamp = dt.now().strftime('%Y-%m-%d_%H-%M-%S')
+        video_file = os.path.join(output_path, f'motion_{timestamp}.h264')
+        recording_process = Popen(['raspivid', '-o', video_file])
+        sleep(10)
+        recording_process.terminate()
+    except Exception as e:
+        print(f"Error recording video: {e}")
+
+
+# def record_video(output_path: str) -> None:
+#     """Record video using Raspberry Pi camera for 10 seconds."""
+#     try:
+#         timestamp = dt.now().strftime('%Y-%m-%d_%H-%M-%S')
+#         video_file = os.path.join(output_path, f'motion_{timestamp}.h264')
+#
+#         camera = PiCamera().start_preview()
+#         camera.start_recording(video_file)
+#         sleep(10)  # Record for 10 seconds
+#         camera.stop_recording().stop_preview().close()
+#     except Exception as e:
+#         print(f"Error recording video: {e}")
 
 
 def main() -> None:
-    arduino_serial = setup_serial(SERIAL_PORT, BAUD_RATE)
+    ino_serial = setup_serial(SERIAL_PORT, BAUD_RATE)
 
-    while True:
-        serial_data = arduino_serial.readline().strip().decode('utf-8')
+    if ino_serial is None:
+        return
 
-        if serial_data == 'Motion detected!':
-            print("Motion detected! Recording video...")
-            record_video(USB_DRIVE_PATH)
-            print("Video recorded.")
+    try:
+        while True:
+            serial_data = ino_serial.readline().strip().decode('utf-8')
 
-        elif serial_data == 'Motion ended!':
-            print("Motion ended.")
+            if serial_data == MOTION_DETECTED_MSG:
+                print('Motion detected! Recording video...')
+                record_video(USB_DRIVE_PATH)
+                print("Video recorded.")
+            elif serial_data == MOTION_ENDED_MSG:
+                print('Motion ended.')
+    except KeyboardInterrupt:
+        print('Program terminated by user.')
+    except Exception as e:
+        print(f'An unexpected error occurred: {e}')
+    finally:
+        ino_serial.close()
 
 
 if __name__ == '__main__':
