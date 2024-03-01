@@ -61,5 +61,5 @@ void loop() {
         cooldown = true;
         motionState = true;
     }
-    delay(60);
+    delay(20);
 }
