@@ -10,8 +10,8 @@ from serial import Serial, SerialException
 SERIAL_PORT: str = '/dev/ttyUSB0'
 BAUD_RATE: int = 9600
 USB_DRIVE_PATH: str = '/media/pi/USB_DRIVE'
-MOTION_DETECTED_MSG: str = 'Motion detected!'
-MOTION_ENDED_MSG: str = 'Motion ended!'
+MOTION_DETECTED_MSG: str = 'Motion detected'
+MOTION_ENDED_MSG: str = 'No motion'
 
 
 def setup_serial(port: str, baud_rate: int) -> Serial or None:
@@ -30,7 +30,7 @@ def record_video(output_path: str) -> None:
         sleep(10)
         recording_process.terminate()
     except Exception as e:
-        print(f"Error recording video: {e}")
+        print(f'Error recording video: {e}')
 
 
 # def record_video(output_path: str) -> None:
@@ -60,7 +60,7 @@ def main() -> None:
             if serial_data == MOTION_DETECTED_MSG:
                 print('Motion detected! Recording video...')
                 record_video(USB_DRIVE_PATH)
-                print("Video recorded.")
+                print('Video recorded.')
             elif serial_data == MOTION_ENDED_MSG:
                 print('Motion ended.')
     except KeyboardInterrupt:
