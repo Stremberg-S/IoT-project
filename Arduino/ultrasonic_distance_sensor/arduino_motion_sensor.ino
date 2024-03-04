@@ -42,24 +42,21 @@ void loop() {
 
     // NO MOTION:
     if (distance > DISTANCE_THRESHOLD ) {
+        delay(3000);
         cooldown = false;
         digitalWrite(LED_PIN, LOW);
         if (motionState) {
-            Serial.println("No motion..");
+            Serial.println('0');
             motionState = false;
-            lcd.setCursor(0, 1);
         }
     }
     // MOTION DETECTED:
     else if (distance <= DISTANCE_THRESHOLD && !cooldown) {
-        Serial.print("Motion derected at ");
-        Serial.print(distance);
-        Serial.println(" cm");
+        Serial.println('1');
         digitalWrite(LED_PIN, HIGH);
         cooldown = true;
         motionState = true;
     }
-    delay(100);
 }
 
 void displayDistance(long distance) {
@@ -69,7 +66,9 @@ void displayDistance(long distance) {
         lcd.print(distance);
         lcd.print(" cm   ");
     } else {
+        delay(3000);
+        lcd.clear();
         lcd.setCursor(0, 0);
-        lcd.print("Out of range  ");
+        lcd.print("Out of range..");
     }
 }
