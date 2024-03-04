@@ -2,6 +2,7 @@
 #include <LiquidCrystal_I2C.h>
 
 const int DISTANCE_THRESHOLD = 300; // cm
+const int MAX_DISTANCE = 400; // cm
 const int TRIGGER_PIN = 9;
 const int ECHO_PIN = 10;
 const int LED_PIN = 13;
@@ -20,7 +21,7 @@ void setup() {
     pinMode(TRIGGER_PIN, OUTPUT);
     pinMode(LED_PIN, OUTPUT);
 
-    lcd.init();
+    lcd.begin();
     lcd.backlight();
     lcd.clear();
 }
@@ -36,11 +37,8 @@ void loop() {
     duration = pulseIn(ECHO_PIN, HIGH);
     distance = duration / 59;
 
-    // Update LCD with distance information
     lcd.setCursor(0, 0);
-    lcd.print("Distance: ");
-    lcd.print(distance);
-    lcd.print(" cm   ");
+    displayDistance(distance);
 
     // NO MOTION:
     if (distance > DISTANCE_THRESHOLD ) {
@@ -61,5 +59,17 @@ void loop() {
         cooldown = true;
         motionState = true;
     }
-    delay(20);
+    delay(100);
+}
+
+void displayDistance(long distance) {
+    if (distance <= MAX_DISTANCE) {
+        lcd.setCursor(0, 0);
+        lcd.print("Distance: ");
+        lcd.print(distance);
+        lcd.print(" cm   ");
+    } else {
+        lcd.setCursor(0, 0);
+        lcd.print("Out of range  ");
+    }
 }
