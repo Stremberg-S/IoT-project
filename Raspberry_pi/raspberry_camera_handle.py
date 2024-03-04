@@ -10,10 +10,8 @@ USB_DRIVE_PATH: str = '/media/r4GUI/BB35-4AB9/raspberry'
 MOTION_DETECTED_MSG: str = '1'
 MOTION_ENDED_MSG: str = '0'
 MIN_RECORDING_DURATION: int = 2  # seconds
-NO_MOTION_DURATION: int = 3  # seconds
 
 motion_start_time = None
-recording_started = False
 
 
 def setup_serial(port: str, baud_rate: int) -> Serial or None:
@@ -39,13 +37,10 @@ def record_video(output_path: str, rec_duration: int) -> None:
 
 def handle_motion_detection(serial_data: str) -> None:
     global motion_start_time
-    global recording_started
 
     if serial_data == MOTION_DETECTED_MSG:
         if motion_start_time is None:
             motion_start_time = dt.now()
-            recording_started = False
-
     elif serial_data == MOTION_ENDED_MSG:
         if motion_start_time is not None:
             motion_end_time = dt.now()
@@ -53,12 +48,12 @@ def handle_motion_detection(serial_data: str) -> None:
                     motion_end_time - motion_start_time
             ).total_seconds()
 
-            if not recording_started and motion_duration >= NO_MOTION_DURATION:
+            if motion_duration >= MIN_RECORDING_DURATION:
                 print('Recording video...')
                 record_video(USB_DRIVE_PATH, int(motion_duration))
                 print('Video recorded.')
-                motion_start_time = None
-                recording_started = True
+
+            motion_start_time = None
 
 
 def main() -> None:
