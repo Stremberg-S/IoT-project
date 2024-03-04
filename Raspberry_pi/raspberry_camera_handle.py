@@ -25,7 +25,7 @@ def setup_serial(port: str, baud_rate: int) -> Serial or None:
 def record_video(output_path: str, rec_duration: int) -> None:
     try:
         timestamp = dt.now().strftime('%Y-%m-%d_%H-%M-%S')
-        video_file = os.path.join(output_path, f'motion_{timestamp}.h264')
+        video_file = os.path.join(output_path, f'{timestamp}.h264')
 
         with PiCamera() as cam:
             cam.start_recording(video_file)
@@ -41,6 +41,7 @@ def handle_motion_detection(serial_data: str) -> None:
     if serial_data == MOTION_DETECTED_MSG:
         if motion_start_time is None:
             motion_start_time = dt.now()
+            
     elif serial_data == MOTION_ENDED_MSG:
         if motion_start_time is not None:
             motion_end_time = dt.now()
