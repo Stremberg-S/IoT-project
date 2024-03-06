@@ -85,17 +85,22 @@ class MotionCamera:
 
     def rename_video(self) -> None:
         selected_index = self.video_listbox.curselection()
-        if selected_index:  # Check if there is a selection
-            selected_video = self.video_listbox.get(selected_index[0])  # Get the selected video
+        if selected_index:
+            selected_video = self.video_listbox.get(selected_index[0])
             old_path = os.path.join(self.recorded_videos_path, selected_video)
-            new_name = tk.simpledialog.askstring(
-                'Rename Video',
-                'Enter new name:',
-                initialvalue=selected_video  # Use the selected video name as the initial value
-            )
-            if new_name:
+
+            entry = tk.Entry(self.video_listbox, width=60)
+            entry.grid(row=selected_index[0], column=0, sticky='w')
+            entry.insert(0, selected_video)
+            entry.focus_set()
+
+            def handle_rename(event) -> None:
+                new_name = entry.get()
                 new_path = os.path.join(self.recorded_videos_path, new_name)
                 os.rename(old_path, new_path)
                 self.update_video_list()
+                entry.destroy()
+
+            entry.bind('<Return>', handle_rename)
         else:
             print('Please select a video to rename.')
