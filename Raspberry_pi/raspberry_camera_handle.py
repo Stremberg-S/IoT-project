@@ -1,15 +1,10 @@
 import os
 from datetime import datetime as dt
 
+from config import (BAUD_RATE, MIN_RECORDING_DURATION, MOTION_DETECTED_MSG,
+                    MOTION_ENDED_MSG, SERIAL_PORT, USB_DRIVE_PATH)
 from picamera import PiCamera
 from serial import Serial, SerialException
-
-SERIAL_PORT: str = '/dev/ttyUSB0'
-BAUD_RATE: int = 9600
-USB_DRIVE_PATH: str = '/media/r4GUI/BB35-4AB9/raspberry'
-MOTION_DETECTED_MSG: str = '1'
-MOTION_ENDED_MSG: str = '0'
-MIN_RECORDING_DURATION: int = 2  # seconds
 
 motion_start_time = None
 
@@ -41,7 +36,7 @@ def handle_motion_detection(serial_data: str) -> None:
     if serial_data == MOTION_DETECTED_MSG:
         if motion_start_time is None:
             motion_start_time = dt.now()
-            
+
     elif serial_data == MOTION_ENDED_MSG:
         if motion_start_time is not None:
             motion_end_time = dt.now()
