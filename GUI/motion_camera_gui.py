@@ -1,8 +1,10 @@
 import os
 import tkinter as tk
-import tkinter.simpledialog
 from subprocess import Popen
 from threading import Thread
+from time import sleep
+
+# from picamera import PiCamera
 
 from config import RECORDED_VIDEOS_PATH, VLC_PATH
 
@@ -18,7 +20,9 @@ class MotionCamera:
         self.master.title('Raspberry-Motion-Cam')
         self.live_stream_active = False
         self.recorded_videos_path = RECORDED_VIDEOS_PATH
+        # self.camera = PiCamera()
         self.create_widgets()
+        self.start_updater()
 
     def create_widgets(self) -> None:
         self.video_frame = tk.LabelFrame(self.master, text='Recorded Videos')
@@ -35,14 +39,33 @@ class MotionCamera:
         button_frame.grid(row=0, column=0, padx=10, pady=10, sticky='nw')
 
         # Place the buttons inside the button frame
-        play_button = tk.Button(button_frame, text='Play', command=self.play_video)
+        play_button = tk.Button(
+            button_frame,
+            text='Play',
+            command=self.play_video
+        )
         play_button.grid(row=0, column=0, sticky='ew')
 
-        delete_button = tk.Button(button_frame, text='Delete', command=self.delete_video)
+        delete_button = tk.Button(
+            button_frame,
+            text='Delete',
+            command=self.delete_video
+        )
         delete_button.grid(row=1, column=0, sticky='we')
 
-        rename_button = tk.Button(button_frame, text='Rename', command=self.rename_video)
+        rename_button = tk.Button(
+            button_frame,
+            text='Rename',
+            command=self.rename_video
+        )
         rename_button.grid(row=2, column=0, sticky='ew')
+
+        live_stream_button = tk.Button(
+            button_frame,
+            text='Live Stream',
+            command=self.start_live_stream
+        )
+        live_stream_button.grid(row=3, column=0, sticky='ew', pady=10)
 
     def update_video_list(self) -> None:
         self.video_listbox.delete(0, tk.END)
@@ -104,3 +127,29 @@ class MotionCamera:
             entry.bind('<Return>', handle_rename)
         else:
             print('Please select a video to rename.')
+
+    def start_live_stream(self) -> None:
+        if not self.live_stream_active:
+            self.live_stream_active = True
+            live_stream_window = tk.Toplevel(self.master)
+            live_stream_window.title('Live Stream')
+            live_stream_window.geometry('800x600')
+
+            stream_label = tk.Label(live_stream_window)
+            stream_label.pack()
+
+            self.camera.start_preview(fullscreen=False, window=(live_stream_window.winfo_id()))
+        else:
+            print('Live stream is already active.')
+
+    def start_updater(self) -> None:
+        updater_thread = Thread(target=self.check_for_changes)
+        updater_thread.daemon = True
+        updater_thread.start()
+
+    def check_for_changes(self) -> None:
+        while True:
+            current_files = set(os.listdir(self.recorded_videos_path))
+            if current_files != set(self.recorded_videos):
+                self.update_video_list()
+            sleep(1)
