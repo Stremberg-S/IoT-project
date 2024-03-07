@@ -1,12 +1,14 @@
 import os
 import tkinter as tk
+import tkinter.messagebox as messagebox
 from subprocess import Popen
 from threading import Thread
 from time import sleep
 
-# from picamera import PiCamera
-
 from config import RECORDED_VIDEOS_PATH, VLC_PATH
+
+
+# from picamera import PiCamera
 
 
 class MotionCamera:
@@ -18,6 +20,7 @@ class MotionCamera:
         self.video_frame = None
         self.master = master
         self.master.title('Raspberry-Motion-Cam')
+        self.master.bind('<BackSpace>', self.handle_delete_key)
         self.live_stream_active = False
         self.recorded_videos_path = RECORDED_VIDEOS_PATH
         # self.camera = PiCamera()
@@ -77,6 +80,12 @@ class MotionCamera:
             self.video_listbox.curselection()
         )
 
+    def handle_delete_key(self, event):
+        if self.selected_video:
+            self.delete_video()
+        else:
+            pass
+
     def play_video(self) -> None:
         if self.selected_video:
             video_path = os.path.join(
@@ -97,12 +106,17 @@ class MotionCamera:
 
     def delete_video(self) -> None:
         if self.selected_video:
-            video_path = os.path.join(
-                self.recorded_videos_path,
-                self.selected_video
+            confirm = messagebox.askyesno(
+                "Confirm Deletion",
+                f"Are you sure you want to delete '{self.selected_video}'?"
             )
-            os.remove(video_path)
-            self.update_video_list()
+            if confirm:
+                video_path = os.path.join(
+                    self.recorded_videos_path,
+                    self.selected_video
+                )
+                os.remove(video_path)
+                self.update_video_list()
         else:
             print('Please select a video to delete.')
 
@@ -138,7 +152,10 @@ class MotionCamera:
             stream_label = tk.Label(live_stream_window)
             stream_label.pack()
 
-            self.camera.start_preview(fullscreen=False, window=(live_stream_window.winfo_id()))
+            self.camera.start_preview(
+                fullscreen=False,
+                window=(live_stream_window.winfo_id())
+            )
         else:
             print('Live stream is already active.')
 
