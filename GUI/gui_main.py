@@ -1,6 +1,6 @@
 import tkinter as tk
 
-from GUI.motion_camera_gui import MotionCamera
+from GUI.motion_camera import MotionCamera
 
 
 def main():

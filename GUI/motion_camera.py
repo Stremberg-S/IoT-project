@@ -6,6 +6,7 @@ from threading import Thread
 from time import sleep
 
 from config import RECORDED_VIDEOS_PATH, VLC_PATH
+from GUI.button_frame import ButtonFrame
 
 
 # from picamera import PiCamera
@@ -37,38 +38,14 @@ class MotionCamera:
         self.video_listbox.bind('<Double-Button-1>', lambda event: self.play_video())
         self.update_video_list()
 
-        # Create a frame to contain the buttons
-        button_frame = tk.Frame(self.master)
+        button_frame = ButtonFrame(
+            self.master,
+            self.play_video,
+            self.delete_video,
+            self.rename_video,
+            self.start_live_stream
+        )
         button_frame.grid(row=0, column=0, padx=10, pady=10, sticky='nw')
-
-        # Place the buttons inside the button frame
-        play_button = tk.Button(
-            button_frame,
-            text='Play',
-            command=self.play_video
-        )
-        play_button.grid(row=0, column=0, sticky='ew')
-
-        delete_button = tk.Button(
-            button_frame,
-            text='Delete',
-            command=self.delete_video
-        )
-        delete_button.grid(row=1, column=0, sticky='we')
-
-        rename_button = tk.Button(
-            button_frame,
-            text='Rename',
-            command=self.rename_video
-        )
-        rename_button.grid(row=2, column=0, sticky='ew')
-
-        live_stream_button = tk.Button(
-            button_frame,
-            text='Live Stream',
-            command=self.start_live_stream
-        )
-        live_stream_button.grid(row=3, column=0, sticky='ew', pady=10)
 
     def update_video_list(self) -> None:
         self.video_listbox.delete(0, tk.END)
