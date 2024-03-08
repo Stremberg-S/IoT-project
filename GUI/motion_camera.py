@@ -23,6 +23,7 @@ class MotionCamera:
         self.master.title('Raspberry-Motion-Cam')
         self.master.bind('<BackSpace>', self.handle_delete_key)
         self.live_stream_active = False
+        self.renaming_video = False
         self.recorded_videos_path = RECORDED_VIDEOS_PATH
         # self.camera = PiCamera()
         self.create_widgets()
@@ -58,7 +59,7 @@ class MotionCamera:
         )
 
     def handle_delete_key(self, event):
-        if self.selected_video:
+        if not self.renaming_video and self.selected_video:
             self.delete_video()
         else:
             pass
@@ -100,6 +101,7 @@ class MotionCamera:
     def rename_video(self) -> None:
         selected_index = self.video_listbox.curselection()
         if selected_index:
+            self.renaming_video = True
             selected_video = self.video_listbox.get(selected_index[0])
             old_path = os.path.join(self.recorded_videos_path, selected_video)
 
@@ -114,8 +116,16 @@ class MotionCamera:
                 os.rename(old_path, new_path)
                 self.update_video_list()
                 entry.destroy()
+                self.renaming_video = False
+
+            def cancel_rename(event) -> None:
+                entry.destroy()
+                self.update_video_list()
+                self.renaming_video = False
 
             entry.bind('<Return>', handle_rename)
+            entry.bind('<Escape>', cancel_rename)
+
         else:
             print('Please select a video to rename.')
 
