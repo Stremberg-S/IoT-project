@@ -30,8 +30,12 @@ class MotionCamera:
         self.start_updater()
 
     def create_widgets(self) -> None:
+        self.master.rowconfigure(0, weight=1)
+        self.master.columnconfigure(0, weight=1, minsize=130)
+        self.master.columnconfigure(1, weight=2, minsize=300)
+
         self.video_frame = tk.LabelFrame(self.master, text='Recorded Videos')
-        self.video_frame.grid(row=0, column=1, padx=20, pady=10)
+        self.video_frame.grid(row=0, column=1, padx=20, pady=10, sticky="nsew")
 
         self.video_listbox = tk.Listbox(self.video_frame, width=60, height=20)
         self.video_listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
@@ -46,7 +50,7 @@ class MotionCamera:
             self.rename_video,
             self.start_live_stream
         )
-        button_frame.grid(row=0, column=0, padx=10, pady=10, sticky='nw')
+        button_frame.grid(row=0, column=0, padx=10, pady=10, sticky='nsew')
 
     def update_video_list(self) -> None:
         self.video_listbox.delete(0, tk.END)
