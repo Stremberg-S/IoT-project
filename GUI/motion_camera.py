@@ -1,8 +1,6 @@
 import os
 import sys
 
-sys.path.append('/home/r4GUI/Ryhma2/stremberg/IoT-project')
-
 import tkinter as tk
 import tkinter.messagebox as messagebox
 from subprocess import Popen
@@ -13,6 +11,8 @@ from picamera import PiCamera
 
 from config import RECORDED_VIDEOS_PATH, VLC_PATH
 from GUI.button_frame import ButtonFrame
+
+sys.path.append('/home/r4GUI/Ryhma2/stremberg/IoT-project')
 
 
 class MotionCamera:

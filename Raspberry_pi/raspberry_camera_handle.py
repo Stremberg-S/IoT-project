@@ -1,8 +1,6 @@
 import os
 import sys
 
-sys.path.append('/home/r4GUI/Ryhma2/stremberg/IoT-project')
-
 from datetime import datetime as dt
 
 from picamera import PiCamera
@@ -10,6 +8,8 @@ from serial import Serial, SerialException
 
 from config import (BAUD_RATE, MIN_RECORDING_DURATION, MOTION_DETECTED_MSG,
                     MOTION_ENDED_MSG, SERIAL_PORT, USB_DRIVE_PATH)
+
+sys.path.append('/home/r4GUI/Ryhma2/stremberg/IoT-project')
 
 motion_start_time = None
 
