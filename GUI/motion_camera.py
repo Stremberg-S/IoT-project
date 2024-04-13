@@ -1,5 +1,6 @@
 import os
 import sys
+
 sys.path.append('/home/r4GUI/Ryhma2/stremberg/IoT-project')
 
 import tkinter as tk
@@ -8,11 +9,10 @@ from subprocess import Popen
 from threading import Thread
 from time import sleep
 
+from picamera import PiCamera
+
 from config import RECORDED_VIDEOS_PATH, VLC_PATH
 from GUI.button_frame import ButtonFrame
-
-
-from picamera import PiCamera
 
 
 class MotionCamera:
@@ -31,7 +31,7 @@ class MotionCamera:
         self.camera = PiCamera()
         self.create_widgets()
         self.start_updater()
-        
+
         print(self.recorded_videos_path)
 
     def create_widgets(self) -> None:
@@ -161,9 +161,6 @@ class MotionCamera:
 
             # Change button text and command
             self.button_frame.rename_live_stream_button_text('Live Stream')
-
-
-
 
     def start_updater(self) -> None:
         updater_thread = Thread(target=self.check_for_changes)
