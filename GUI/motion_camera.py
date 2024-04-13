@@ -27,10 +27,12 @@ class MotionCamera:
         self.master.bind('<BackSpace>', self.handle_delete_key)
         self.live_stream_active = False
         self.renaming_video = False
-        self.recorded_videos_path = '/home/r4GUI/Ryhma2/stremberg/raspberry_cam_videos'
+        self.recorded_videos_path = RECORDED_VIDEOS_PATH
         self.camera = PiCamera()
         self.create_widgets()
         self.start_updater()
+        
+        print(self.recorded_videos_path)
 
     def create_widgets(self) -> None:
         self.master.rowconfigure(0, weight=1)
