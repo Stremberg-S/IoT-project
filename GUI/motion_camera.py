@@ -1,4 +1,7 @@
 import os
+import sys
+sys.path.append('/home/r4GUI/Ryhma2/stremberg/IoT-project')
+
 import tkinter as tk
 import tkinter.messagebox as messagebox
 from subprocess import Popen
@@ -9,7 +12,7 @@ from config import RECORDED_VIDEOS_PATH, VLC_PATH
 from GUI.button_frame import ButtonFrame
 
 
-# from picamera import PiCamera
+from picamera import PiCamera
 
 
 class MotionCamera:
@@ -24,8 +27,8 @@ class MotionCamera:
         self.master.bind('<BackSpace>', self.handle_delete_key)
         self.live_stream_active = False
         self.renaming_video = False
-        self.recorded_videos_path = RECORDED_VIDEOS_PATH
-        # self.camera = PiCamera()
+        self.recorded_videos_path = '/home/r4GUI/Ryhma2/stremberg/raspberry_cam_videos'
+        self.camera = PiCamera()
         self.create_widgets()
         self.start_updater()
 
@@ -35,7 +38,7 @@ class MotionCamera:
         self.master.columnconfigure(1, weight=2, minsize=300)
 
         self.video_frame = tk.LabelFrame(self.master, text='Recorded Videos')
-        self.video_frame.grid(row=0, column=1, padx=20, pady=10, sticky="nsew")
+        self.video_frame.grid(row=0, column=1, padx=10, pady=10, sticky="nsew")
 
         self.video_listbox = tk.Listbox(self.video_frame, width=60, height=20)
         self.video_listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
@@ -43,14 +46,14 @@ class MotionCamera:
         self.video_listbox.bind('<Double-Button-1>', lambda event: self.play_video())
         self.update_video_list()
 
-        button_frame = ButtonFrame(
+        self.button_frame = ButtonFrame(
             self.master,
             self.play_video,
             self.delete_video,
             self.rename_video,
             self.start_live_stream
         )
-        button_frame.grid(row=0, column=0, padx=10, pady=10, sticky='nsew')
+        self.button_frame.grid(row=0, column=0, padx=10, pady=10, sticky='nsew')
 
     def update_video_list(self) -> None:
         self.video_listbox.delete(0, tk.END)
@@ -136,19 +139,29 @@ class MotionCamera:
     def start_live_stream(self) -> None:
         if not self.live_stream_active:
             self.live_stream_active = True
-            live_stream_window = tk.Toplevel(self.master)
-            live_stream_window.title('Live Stream')
-            live_stream_window.geometry('800x600')
+            self.stream_label = tk.Label(self.video_frame)
+            self.stream_label.pack()
 
-            stream_label = tk.Label(live_stream_window)
-            stream_label.pack()
+            self.camera.preview_fullscreen = False
+            self.camera.preview_window = (3, 17, 800, 600)
+            self.camera.resolution = (800, 600)
+            self.camera.start_preview()
 
-            self.camera.start_preview(
-                fullscreen=False,
-                window=(live_stream_window.winfo_id())
-            )
+            # Change button text and command
+            self.button_frame.rename_live_stream_button_text('STOP Stream')
         else:
-            print('Live stream is already active.')
+            self.stop_live_stream()
+
+    def stop_live_stream(self) -> None:
+        if self.live_stream_active:
+            self.live_stream_active = False
+            self.camera.stop_preview()
+
+            # Change button text and command
+            self.button_frame.rename_live_stream_button_text('Live Stream')
+
+
+
 
     def start_updater(self) -> None:
         updater_thread = Thread(target=self.check_for_changes)

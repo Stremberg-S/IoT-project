@@ -1,4 +1,7 @@
 import os
+import sys
+sys.path.append('/home/r4GUI/Ryhma2/stremberg/IoT-project')
+
 from datetime import datetime as dt
 
 from picamera import PiCamera

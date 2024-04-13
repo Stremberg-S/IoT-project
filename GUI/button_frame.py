@@ -34,3 +34,7 @@ class ButtonFrame(tk.Frame):
             command=live_stream_callback
         )
         self.live_stream_button.grid(row=3, column=0, sticky='ew', pady=10)
+        
+        
+    def rename_live_stream_button_text(self, new_text):
+        self.live_stream_button.config(text=new_text)
